@@ -338,7 +338,6 @@ order by dept_no DESC;
 select dept_no from departments
 where dept_name in ('Marketing', 'Human Resources', 'Finance');
 
-select emp_no from 
 
 -- subquery / inner query
 
@@ -372,10 +371,143 @@ where emp_no in
 
 -- getting info from employees table (-> emp_no) than get the info from dept_emp table (-> emp-no of specific dept_no) than get info form departments table (-> dept_no of specific dept_name)
 
-
+-- alternative:
 -- get number of employees in Marketing departments using join
 select count(e.emp_no)
 from employees e
 join dept_emp de on e.emp_no = de.emp_no
 join departments d on de.dept_no = d.dept_no
 where d.dept_name = 'Marketing';
+
+
+
+select count(employees.emp_no), departments.dept_name
+from employees 
+where employees.emp_no in
+    (select dept_emp.emp_no
+    from dept_emp.emp_no
+    join departments on dept_emp.dept_no = departments.dept_no)
+group BY departments.dept_name;
+
+    
+-- get the number of employees grouped by department name
+
+select de.dept_name, count(d.emp_no)
+from dept_emp d
+join departments de on de.dept_no = d.dept_no
+group by de.dept_name;
+
+
+-- get the number of employees grouped by department name which have more than 50000 employees
+
+select de.dept_name, count(d.emp_no)
+from dept_emp d
+join departments de on de.dept_no = d.dept_no
+group by de.dept_name
+having count(distinct emp_no) > 50000;
+
+
+-- get the number of employees grouped by department number which are either Marketing, HR or Finance and have less than 18000 employees
+
+select dept_no, count(distinct emp_no)
+from dept_emp
+where dept_no in (select dept_no from departments where dept_name in ('Marketing', 'Human Resources', 'Finance'))
+group by dept_no
+having count(distinct emp_no) < 18000;
+
+
+select dept_name
+from departments
+where dept_no in 
+    (select dept_no 
+    from dept_manager 
+    where emp_no in 
+        (select emp_no
+        from employees
+        where emp_no in 
+            (select emp_no
+            from titles
+            where title = 'Staff')));
+
+
+-- Wild card search
+-- % or _
+
+
+
+SELECT upper(emp.first_name),
+       upper(emp.last_name),
+       concat(first_name,' ',last_name) as 'Full Name',
+       de.dept_no as 'Department Number',
+       d.dept_name 'Department Name',
+       SUBSTRING(first_name,1,4)
+FROM employees emp
+JOIN dept_emp de ON emp.emp_no=de.emp_no
+JOIN departments d ON de.dept_no=d.dept_no
+WHERE emp.first_name='Georgi'
+  AND emp.last_name like'B%'
+  AND d.dept_name='Sales';
+
+-- substring syntax
+-- SUBSTRING(string, start, length)
+
+SELECT SUBSTRING("SQL Tutorial", 1, 3) AS ExtractString;
+
+
+SELECT upper(emp.first_name),
+       upper(emp.last_name),
+       concat(first_name,' ',last_name) as 'Full Name',
+       length(last_name),
+       de.dept_no as 'Department Number',
+       d.dept_name 'Department Name',
+       SUBSTRING(first_name,1,4)
+FROM employees emp
+JOIN dept_emp de ON emp.emp_no=de.emp_no
+JOIN departments d ON de.dept_no=d.dept_no
+WHERE emp.first_name='Georgi'
+  AND d.dept_name='Sales';
+
+
+SELECT upper(emp.first_name),
+       upper(emp.last_name),
+       concat(first_name,' ',last_name) as 'Full Name',
+       de.dept_no as 'Department Number',
+       d.dept_name 'Department Name',
+       SUBSTRING(first_name,1,4)
+FROM employees emp
+JOIN dept_emp de ON emp.emp_no=de.emp_no
+JOIN departments d ON de.dept_no=d.dept_no
+WHERE emp.first_name='Georgi'
+  AND emp.last_name like'B%'
+  AND d.dept_name='Sales';
+
+-- substring syntax
+-- SUBSTRING(string, start, length)
+
+SELECT SUBSTRING("SQL Tutorial", 1, 3) AS ExtractString;
+
+
+SELECT upper(emp.first_name),
+       upper(emp.last_name),
+       concat(first_name,' ',last_name) as 'Full Name',
+       length(last_name),
+       de.dept_no as 'Department Number',
+       d.dept_name 'Department Name',
+       SUBSTRING(first_name,1,4)
+FROM employees emp
+JOIN dept_emp de ON emp.emp_no=de.emp_no
+JOIN departments d ON de.dept_no=d.dept_no
+WHERE emp.first_name='Georgi'
+  AND d.dept_name='Sales';
+
+-- get all products with name starting with T and any character after T
+select * from Products where ProductNumber like 'T%';
+
+-- get all products with name starting with T and three characters after T
+select * from Products where ProductNumber like 'T___';
+
+-- get all products with name starting with T and 1, 2 or 3 after T followed by anything
+select * from Products where ProductNumber like 'T[123]%';
+
+
+continueing with indexing, views, store procedure
